@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobThai - หางาน ฉบับขำๆ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .user-header {
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            z-index: 500;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            padding: 12px 20px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .user-name {
+            color: #E65100;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .user-salary {
+            margin-top: 5px;
+            font-size: 0.95em;
+        }
+
+        .salary-label {
+            color: #999;
+            font-weight: normal;
+            font-size: 0.85em;
+        }
+
+        .salary-amount {
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Page 1 - Search */
+        .page1 h1 {
+            font-size: 3em;
+            color: #FF6B35;
+            margin-bottom: 20px;
+        }
+
+        .page1 .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Page 2 - Card Game */
+        .page2 h1 {
+            font-size: 2.5em;
+            color: #FF6B35;
+            margin-bottom: 15px;
+        }
+
+        .game-subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .progress {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #E65100;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 8px;
+            line-height: 1.2;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            color: white;
+            font-size: 2em;
+        }
+
+        .card-back {
+            background: white;
+            color: #333;
+            transform: rotateY(180deg);
+            border: 2px solid #FF6B35;
+        }
+
+        .next-btn, .result-btn, .restart-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .next-btn:hover:not(:disabled), .result-btn:hover, .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Page 3 - Results */
+        .page3 h1 {
+            font-size: 2.5em;
+            color: #FF6B35;
+            margin-bottom: 30px;
+        }
+
+        .job-count {
+            text-align: left;
+            font-size: 1.05em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .job-count strong {
+            color: #FF6B35;
+            font-size: 1.2em;
+        }
+
+        .job-list {
+            text-align: left;
+            margin-bottom: 30px;
+            max-height: 430px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .job-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .job-list::-webkit-scrollbar-thumb {
+            background: #FF6B35;
+            border-radius: 10px;
+        }
+
+        .job-list::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .job-card {
+            background: #f5f5f5;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #FF6B35;
+        }
+
+        .job-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .job-company {
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .job-salary {
+            color: #27ae60;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .job-benefits {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .button-group {
+            margin-top: 30px;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin: 0 5px;
+        }
+
+        /* สมัครรัว (Apply 999) section */
+        .spam-section {
+            margin: 35px 0 10px;
+            text-align: center;
+        }
+
+        .spam-question {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .spam-card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .spam-bomb {
+            font-size: 2.4em;
+            display: block;
+            line-height: 1;
+        }
+
+        .spam-label {
+            display: block;
+            color: #FF6B35;
+            font-weight: bold;
+            margin: 6px 0 22px;
+        }
+
+        .spam-counter-label {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .spam-counter {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #E53935;
+            line-height: 1.1;
+            display: inline-block;
+        }
+
+        .spam-counter-unit {
+            color: #999;
+            margin-bottom: 22px;
+        }
+
+        .spam-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            color: white;
+            border: none;
+            padding: 22px 20px;
+            font-size: 1.35em;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .spam-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 14px 32px rgba(255, 107, 53, 0.45);
+        }
+
+        .spam-btn:active {
+            transform: scale(0.98);
+        }
+
+        .spam-feed {
+            text-align: left;
+        }
+
+        .spam-item {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #555;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .spam-mail {
+            color: #FF6B35;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .spam-item strong {
+            color: #333;
+        }
+
+        @keyframes spamIn {
+            from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .spam-new {
+            animation: spamIn 0.4s ease-out;
+        }
+
+        @keyframes countPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .count-pop {
+            animation: countPop 0.3s ease;
+        }
+
+        /* Ad Overlay */
+        .ad-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-overlay.active {
+            display: flex;
+        }
+
+        .ad-topbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        .ad-label {
+            color: #aaa;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .skip-btn-top {
+            background: #555;
+            color: #888;
+            border: 1px solid #666;
+            padding: 6px 18px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .ad-image-wrap {
+            width: 100%;
+            max-width: 900px;
+            padding: 0 16px;
+        }
+
+        .ad-image-wrap img {
+            width: 100%;
+            display: block;
+            border-radius: 4px;
+        }
+
+        .ad-bottombar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 16px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .ad-countdown {
+            color: #ff9800;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .skip-btn-pay {
+            background: linear-gradient(135deg, #FF6B35, #E65100);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.05em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .skip-btn-pay:hover {
+            transform: scale(1.04);
+            box-shadow: 0 10px 28px rgba(255, 107, 53, 0.55);
+        }
+
+        .skip-note {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        /* Payment modal */
+        .pay-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pay-modal.active {
+            display: flex;
+        }
+
+        .pay-box {
+            background: white;
+            border-radius: 20px;
+            padding: 36px 30px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .pay-box h2 {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .pay-price {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FF6B35;
+            margin: 12px 0;
+        }
+
+        .pay-desc {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .pay-confirm-btn {
+            background: linear-gradient(135deg, #FF6B35, #E65100);
+            color: white;
+            border: none;
+            padding: 14px 0;
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .pay-cancel-btn {
+            background: none;
+            border: 1px solid #ddd;
+            color: #888;
+            padding: 12px 0;
+            width: 100%;
+            font-size: 1em;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .page1 h1 {
+                font-size: 2em;
+            }
+
+            .search-btn {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            /* Ad overlay — mobile */
+            .ad-topbar {
+                padding: 10px 12px;
+                padding-top: max(10px, env(safe-area-inset-top));
+            }
+
+            .ad-label {
+                font-size: 0.75em;
+            }
+
+            .skip-btn-top {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+
+            .ad-image-wrap {
+                padding: 0 0;
+                /* banner is landscape — let it fill width and be naturally short */
+                max-height: 40vh;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+            }
+
+            .ad-image-wrap img {
+                width: 100%;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 0;
+            }
+
+            .ad-bottombar {
+                gap: 10px;
+                padding: 16px 16px;
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
+
+            .ad-countdown {
+                font-size: 1em;
+            }
+
+            .skip-btn-pay {
+                width: 100%;
+                padding: 16px 12px;
+                font-size: 1em;
+                border-radius: 10px;
+            }
+
+            .skip-note {
+                font-size: 0.75em;
+                text-align: center;
+                line-height: 1.4;
+            }
+
+            /* Payment modal — mobile */
+            .pay-box {
+                padding: 28px 20px;
+                border-radius: 16px;
+                margin: 0 12px;
+            }
+
+            .pay-box h2 {
+                font-size: 1.3em;
+            }
+
+            .pay-price {
+                font-size: 2em;
+            }
+
+            .pay-desc {
+                font-size: 0.85em;
+            }
+
+            .pay-confirm-btn {
+                padding: 16px 0;
+                font-size: 1em;
+            }
+
+            .pay-cancel-btn {
+                padding: 14px 0;
+            }
+        }
+        /* Page 4 - Scream */
+        .page4 h1 {
+            font-size: 2.5em;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .scream-subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .scream-face {
+            font-size: 6em;
+            display: block;
+            margin: 10px auto 20px;
+            transition: transform 0.1s ease;
+            line-height: 1;
+        }
+
+        .scream-face.shaking {
+            animation: shake 0.15s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-4px) rotate(-3deg); }
+            75% { transform: translateX(4px) rotate(3deg); }
+        }
+
+        .volume-wrapper {
+            margin: 20px 0;
+        }
+
+        .volume-track {
+            background: #eee;
+            border-radius: 12px;
+            height: 28px;
+            width: 100%;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            margin-bottom: 8px;
+        }
+
+        .volume-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #27ae60 0%, #f39c12 60%, #e74c3c 100%);
+            transition: width 0.08s ease-out;
+            position: relative;
+        }
+
+        .volume-fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0;
+            height: 100%; width: 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 3px;
+        }
+
+        .volume-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .volume-pct {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #FF6B35;
+            margin: 8px 0 4px;
+        }
+
+        .scream-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            margin: 15px auto;
+            display: block;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .scream-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
+        }
+
+        .scream-btn.recording {
+            animation: pulse-btn 0.8s infinite;
+        }
+
+        @keyframes pulse-btn {
+            0%   { box-shadow: 0 0 0 0 rgba(231,76,60,0.6); }
+            70%  { box-shadow: 0 0 0 16px rgba(231,76,60,0); }
+            100% { box-shadow: 0 0 0 0 rgba(231,76,60,0); }
+        }
+
+        .scream-msg {
+            min-height: 2.2em;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0 20px;
+        }
+
+        /* Page 5 - Success Landing */
+        .page5 {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            z-index: 5000;
+        }
+
+        .page5.active {
+            display: flex;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .success-badge {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: badgePop 0.6s ease-out 0.3s both;
+        }
+
+        @keyframes badgePop {
+            from { transform: scale(0) rotate(-15deg); opacity: 0; }
+            to   { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .success-title {
+            font-size: 1.3em;
+            color: #aaa;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .success-number {
+            font-size: 5em;
+            font-weight: 900;
+            color: #FF6B35;
+            line-height: 1;
+            margin-bottom: 8px;
+            animation: countUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-unit {
+            font-size: 1.6em;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .success-sub {
+            color: #aaa;
+            font-size: 1em;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .success-home-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #E65100 100%);
+            color: white;
+            border: none;
+            padding: 16px 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px rgba(255,107,53,0.4);
+        }
+
+        .success-home-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(255,107,53,0.55);
+        }
+
+        .confetti-row {
+            font-size: 2em;
+            margin-bottom: 24px;
+            letter-spacing: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-header">
+        <div class="user-name">👤 นางสาว มณีรัตน์ ยอดขาย</div>
+        <div class="user-salary">💰 <span class="salary-label">เงินเดือนที่ต้องการ</span> <span class="salary-amount">25,000 บาท</span></div>
+    </div>
+
+    <!-- Page 1: Search -->
+    <div class="container">
+        <div class="page page1 active">
+            <h1><span class="emoji">💼</span>JobThai<span class="emoji">😂</span></h1>
+            <p class="subtitle">หาคนตรงงาน หางานตรงใจ</p>
+            <button class="search-btn" onclick="goToGame()">🔍 ค้นหางาน</button>
+        </div>
+
+        <!-- Page 2: Card Game -->
+        <div class="page page2">
+            <h1><span class="emoji">🎮</span>โชคของคุณคืออะไร</h1>
+            <p class="game-subtitle">พลิกแผ่นป้าย เปิดให้ครบ 5 แผ่นแล้วจึงจะไปหน้า Result ได้</p>
+            <div class="progress">
+                <span id="flipped-count">0</span> / 5 <span class="emoji">✨</span>
+            </div>
+            <div class="card-grid" id="card-grid"></div>
+            <button class="result-btn" id="result-btn" onclick="goToResults()" disabled>
+                ✅ ไปหน้า Result
+            </button>
+        </div>
+
+        <!-- Page 3: Results -->
+        <div class="page page3">
+            <h1><span class="emoji">🎉</span>ผลลัพธ์ของคุณ</h1>
+            <div class="job-count" id="job-count"></div>
+            <div class="job-list" id="job-list"></div>
+
+            <!-- สมัครรัว (Apply 999 jobs in one click) -->
+            <div class="spam-section">
+                <div class="spam-question">ทำไมต้องสมัครทีละงาน? 🤔</div>
+                <div class="spam-card">
+                    <span class="spam-bomb">💣</span>
+                    <span class="spam-label">สมัครรัว</span>
+                    <div class="spam-counter-label">ส่งใบสมัครไปแล้วทั้งหมด</div>
+                    <div class="spam-counter" id="spam-count">3,710</div>
+                    <div class="spam-counter-unit">บริษัท</div>
+                    <button class="spam-btn" id="spam-btn" onclick="applyAll()">💣 สมัคร 999 งานในคลิกเดียว</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="restart-btn" onclick="restart()">🔄 ค้นหาใหม่อีกรอบ</button>
+            </div>
+        </div>
+
+        <!-- Page 4: Scream -->
+        <div class="page page4">
+            <h1><span class="emoji">🎤</span>กรี๊ดออกมาเลย!</h1>
+            <p class="scream-subtitle">ระบายความเครียดออกมาเต็มๆ 😤</p>
+
+            <span class="scream-face" id="scream-face">😶</span>
+
+            <div class="volume-wrapper">
+                <div class="volume-track">
+                    <div class="volume-fill" id="volume-fill"></div>
+                </div>
+                <div class="volume-labels">
+                    <span>เงียบ 🤫</span>
+                    <span>ดังมาก 🔊</span>
+                    <span>แตก 🤯</span>
+                </div>
+                <div class="volume-pct" id="volume-pct">0%</div>
+            </div>
+
+            <button class="scream-btn" id="scream-btn" onclick="toggleScream()">
+                🎤 กดแล้วกรี๊ดได้เลย!
+            </button>
+
+            <div class="scream-msg" id="scream-msg"></div>
+
+            <div class="button-group">
+                <button class="restart-btn" onclick="restartFromScream()">🔄 ค้นหาใหม่อีกรอบ</button>
+                <button class="restart-btn" style="background:linear-gradient(135deg,#27ae60 0%,#1e8449 100%); margin-top:10px;" onclick="goToSuccess()">✅ ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 5: Success Landing -->
+    <div class="page5" id="page5">
+        <div class="confetti-row">🎉🎊🥳🎊🎉</div>
+        <div class="success-badge">🏆</div>
+        <div class="success-title">ยินดีด้วย!</div>
+        <div class="success-number">8,999</div>
+        <div class="success-unit">ตำแหน่ง</div>
+        <div class="success-sub">
+            คุณสมัครงานสำเร็จแล้ว 🎯<br>
+            ตอนนี้รอรับสายจาก HR ทั้ง 8,999 บริษัทได้เลย 📱
+        </div>
+        <button class="success-home-btn" onclick="goHome()">🏠 กลับหน้าแรก</button>
+    </div>
+
+    <!-- Ad Overlay -->
+    <div class="ad-overlay" id="ad-overlay">
+        <div class="ad-topbar">
+            <span class="ad-label">โฆษณา</span>
+            <button class="skip-btn-top" disabled title="ยังข้ามไม่ได้">ข้าม ✕</button>
+        </div>
+
+        <div class="ad-image-wrap">
+            <img src="https://cdn.discordapp.com/attachments/1482756239791489085/1517065288129187931/jobbkk-horizontal.png?ex=6a34eca6&is=6a339b26&hm=30e83e08096a97c7d20f9158cfbd1b09f6ad316722edbe06d786d4b751b3e8c8&" alt="JobBKK Advertisement" />
+        </div>
+
+        <div class="ad-bottombar">
+            <div class="ad-countdown" id="ad-countdown">⏳ โฆษณาจะจบใน 29:59</div>
+            <button class="skip-btn-pay" onclick="showPayModal()">💳 ข้ามโฆษณา — จ่ายเพียง 3,000 บาท</button>
+            <div class="skip-note">* ราคาไม่รวม VAT และค่าธรรมเนียมความรีบร้อน</div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="pay-modal" id="pay-modal">
+        <div class="pay-box">
+            <div style="font-size:2.5em">💳</div>
+            <h2>ข้ามโฆษณา Premium</h2>
+            <div class="pay-price">฿3,000</div>
+            <div class="pay-desc">
+                คุณกำลังจะจ่ายเงิน <strong>3,000 บาท</strong><br>
+                เพื่อข้ามโฆษณา <strong>30 วินาที</strong><br>
+                (คุ้มมากๆ เชื่อเถอะ 🙃)
+            </div>
+            <button class="pay-confirm-btn" onclick="confirmPay()">✅ ยืนยันการชำระเงิน</button>
+            <button class="pay-cancel-btn" onclick="closePayModal()">ไม่เป็นไร ดูโฆษณาต่อ</button>
+        </div>
+    </div>
+
+    <script>
+        // Benefits data
+        const benefits = [
+            "ส่งพักร้อนไม่จำกัด แต่หัวหน้าไม่อนุมัติ 🏝️",
+            "ทำโอที แต่ไม่ได้เงิน 💸",
+            "เข้างานเช้า แต่เลิกดึก 🕰️",
+            "เบิกสวัสดิการได้ แต่บัญชีไม่อนุมัติ ⏳",
+            "กาแฟไม่จำกัด แต่หลับตลอด ☕",
+            "มี claude ให้ใช้ แต่ไม่ให้ token 🧠",
+            "มีอาหารกลางวันให้ แต่มาส่งตอนเย็น 🍱",
+            "WFH ได้ แต่ต้องเข้าบริษัท",
+            "ลาป่วยได้ไม่จำกัด แต่ห้ามป่วย 🤒",
+            "เงินเดือนน้อย แต่ทำงานมาก",
+            "มี Macbook ให้ แต่เปิดไม่ติด",
+            "น้ำหนักห้ามเกิน 50 ก่อนผ่านโปร 🏋️‍♂️",
+            "มีเบียร์ฟรี แต่ห้ามเมา",
+            "ขาบูวันทุกจันทร์ 🍲",
+            "ตีแบตทุกวันพุธ 🎪",
+            "ทำงาน 7 วันต่อสัปดาห์ 🛡️",
+            "มีบริการนวด แต่เป็นคนบ้าจี้",
+            "เข้างาน 10:00 ได้ แต่เดลี่ 08:00",
+        ];
+
+        let selectedBenefits = [];
+        let flippedCards = 0;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initializeGame() {
+            selectedBenefits = shuffleArray(benefits);
+            flippedCards = 0;
+            document.getElementById('flipped-count').textContent = '0';
+            document.getElementById('result-btn').disabled = true;
+
+            const cardGrid = document.getElementById('card-grid');
+            cardGrid.innerHTML = '';
+
+            for (let i = 0; i < 16; i++) {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                cardDiv.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-face card-front">?</div>
+                        <div class="card-face card-back">${selectedBenefits[i]}</div>
+                    </div>
+                `;
+                cardDiv.onclick = () => flipCard(cardDiv, i);
+                cardGrid.appendChild(cardDiv);
+            }
+        }
+
+        function flipCard(cardElement, index) {
+            if (cardElement.classList.contains('flipped')) return;
+
+            cardElement.classList.add('flipped');
+            flippedCards++;
+            document.getElementById('flipped-count').textContent = flippedCards;
+
+            if (flippedCards >= 5) {
+                document.getElementById('result-btn').disabled = false;
+            }
+        }
+
+        function goToGame() {
+            document.querySelector('.page1').classList.remove('active');
+            document.querySelector('.page2').classList.add('active');
+            initializeGame();
+        }
+
+        function goToResults() {
+            document.querySelector('.page2').classList.remove('active');
+            document.querySelector('.page3').classList.add('active');
+            displayResults();
+        }
+
+        function displayResults() {
+            const mockJobs = [
+                {
+                    title: 'Senior JavaScript Developer',
+                    company: 'TechCorp Thailand',
+                    salary: '80,000 - 120,000 บาท',
+                    benefits: 'ทุกอย่างที่คุณเปิดได้'
+                },
+                {
+                    title: 'UI/UX Designer',
+                    company: 'Creative Studio',
+                    salary: '50,000 - 80,000 บาท',
+                    benefits: 'สวนสนุก + กาแฟฟรี'
+                },
+                {
+                    title: 'Product Manager',
+                    company: 'StartUp Master',
+                    salary: '70,000 - 100,000 บาท',
+                    benefits: 'โบนัส + ทำงานจากบ้าน'
+                },
+                {
+                    title: 'Data Engineer',
+                    company: 'DataHouse Co.',
+                    salary: '60,000 - 95,000 บาท',
+                    benefits: 'กาแฟไม่จำกัด + WFH'
+                },
+                {
+                    title: 'Backend Developer (Golang)',
+                    company: 'CloudNine Tech',
+                    salary: '75,000 - 110,000 บาท',
+                    benefits: 'โบนัส 6 เดือน'
+                },
+                {
+                    title: 'Marketing Executive',
+                    company: 'BrandUp Agency',
+                    salary: '35,000 - 55,000 บาท',
+                    benefits: 'ทริปต่างประเทศ'
+                },
+                {
+                    title: 'Graphic Designer',
+                    company: 'Pixel Studio',
+                    salary: '30,000 - 50,000 บาท',
+                    benefits: 'iPad + Apple Pencil'
+                },
+                {
+                    title: 'HR Officer',
+                    company: 'People First Co.',
+                    salary: '28,000 - 45,000 บาท',
+                    benefits: 'วันลาเพียบ'
+                },
+                {
+                    title: 'Frontend Developer (React)',
+                    company: 'WebWorks',
+                    salary: '55,000 - 90,000 บาท',
+                    benefits: 'ทำงานจากบ้าน 100%'
+                },
+                {
+                    title: 'DevOps Engineer',
+                    company: 'InfraOps',
+                    salary: '90,000 - 140,000 บาท',
+                    benefits: 'หุ้นบริษัท + ประกันครอบครัว'
+                }
+            ];
+
+            const totalJobs = Math.floor(Math.random() * 900000) + 100000;
+            document.getElementById('job-count').innerHTML =
+                `🔍 เจอทั้งหมด <strong>${totalJobs.toLocaleString()}</strong> งาน`;
+
+            const jobList = document.getElementById('job-list');
+            jobList.innerHTML = '';
+
+            mockJobs.forEach(job => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+                    <div class="job-title">💼 ${job.title}</div>
+                    <div class="job-company">🏢 ${job.company}</div>
+                    <div class="job-salary">💰 ${job.salary}</div>
+                    <div class="job-benefits">✨ ${job.benefits}</div>
+                `;
+                jobList.appendChild(jobCard);
+            });
+
+            initSpam();
+        }
+
+        // ===== สมัครรัว (Apply 999) =====
+        const spamTargets = [
+            'บริษัทของแฟนเก่า',
+            'ธนาคารแห่งประเทศไทย',
+            'บริษัทคู่แข่งของบริษัทที่คุณทำงานอยู่',
+            'บริษัทที่เพิ่งปฏิเสธคุณเมื่อวาน',
+            'องค์การ NASA',
+            'ร้านชาบูหน้าปากซอย',
+            'บริษัทของเจ้านายเก่า',
+            'บริษัทที่ปิดกิจการไปแล้วเมื่อ 3 ปีก่อน',
+            'ทำเนียบรัฐบาล',
+            'โรงเรียนอนุบาลใกล้บ้าน',
+            'บริษัทของตัวคุณเอง',
+            'กระทรวงการคลัง'
+        ];
+
+        let spamCount = 3710;
+        let spamBusy = false;
+
+        function initSpam() {
+            spamCount = 3710;
+            spamBusy = false;
+            document.getElementById('spam-count').textContent = spamCount.toLocaleString();
+        }
+
+        function applyAll() {
+            if (spamBusy) return;
+            spamBusy = true;
+
+            const counterEl = document.getElementById('spam-count');
+            const start = spamCount;
+            const target = spamCount + 999;
+            const duration = 700;
+            const startTime = performance.now();
+
+            counterEl.classList.remove('count-pop');
+            void counterEl.offsetWidth;
+            counterEl.classList.add('count-pop');
+
+            function step(now) {
+                const t = Math.min((now - startTime) / duration, 1);
+                const val = Math.floor(start + (target - start) * t);
+                counterEl.textContent = val.toLocaleString();
+                if (t < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    spamCount = target;
+                    spamBusy = false;
+                    showAd();
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        // ===== Ad Overlay =====
+        let adTimerInterval = null;
+
+        function showAd() {
+            document.getElementById('ad-overlay').classList.add('active');
+            startAdCountdown(30 * 60); // 30 minutes
+        }
+
+        function startAdCountdown(seconds) {
+            clearInterval(adTimerInterval);
+            let remaining = seconds;
+            updateCountdownDisplay(remaining);
+
+            adTimerInterval = setInterval(() => {
+                remaining--;
+                updateCountdownDisplay(remaining);
+                if (remaining <= 0) {
+                    clearInterval(adTimerInterval);
+                    document.getElementById('ad-overlay').classList.remove('active');
+                }
+            }, 1000);
+        }
+
+        function updateCountdownDisplay(seconds) {
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            document.getElementById('ad-countdown').textContent = `⏳ โฆษณาจะจบใน ${m}:${s}`;
+        }
+
+        function showPayModal() {
+            document.getElementById('pay-modal').classList.add('active');
+        }
+
+        function closePayModal() {
+            document.getElementById('pay-modal').classList.remove('active');
+        }
+
+        function confirmPay() {
+            closePayModal();
+            clearInterval(adTimerInterval);
+            document.getElementById('ad-overlay').classList.remove('active');
+            document.querySelector('.page3').classList.remove('active');
+            document.querySelector('.page4').classList.add('active');
+            resetScreamUI();
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: #333; color: white; padding: 14px 24px; border-radius: 30px;
+                font-size: 1em; z-index: 20000; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+                animation: spamIn 0.4s ease-out;
+            `;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function restart() {
+            document.querySelector('.page3').classList.remove('active');
+            document.querySelector('.page1').classList.add('active');
+        }
+
+        // ---- Scream / Audio ----
+        let audioCtx = null;
+        let analyser = null;
+        let micSource = null;
+        let micStream = null;
+        let rafId = null;
+        let isRecording = false;
+        let peakVolume = 0;
+
+        const FACES = ['😶', '😐', '😮', '😲', '😱', '🤯'];
+        const MSGS_LIVE = [
+            'กรี๊ดออกมาเลย! 🎙️',
+            'เริ่มได้แล้ว... 🎶',
+            'โอ้โห! กรี๊ดแล้ว! 😮',
+            'ดังมากเลย! 🔥',
+            'เพื่อนบ้านตกใจแน่! 😱',
+            'โห!! กรี๊ดแตกแล้ว!! 🤯💥'
+        ];
+
+        function restartFromScream() {
+            stopScream();
+            document.querySelector('.page4').classList.remove('active');
+            document.querySelector('.page1').classList.add('active');
+        }
+
+        function goToSuccess() {
+            stopScream();
+            document.querySelector('.page4').classList.remove('active');
+            document.getElementById('page5').classList.add('active');
+        }
+
+        function goHome() {
+            document.getElementById('page5').classList.remove('active');
+            document.querySelector('.page1').classList.add('active');
+        }
+
+        function resetScreamUI() {
+            document.getElementById('scream-face').textContent = '😶';
+            document.getElementById('scream-face').classList.remove('shaking');
+            document.getElementById('scream-face').style.transform = 'scale(1)';
+            document.getElementById('volume-fill').style.width = '0%';
+            document.getElementById('volume-pct').textContent = '0%';
+            document.getElementById('scream-msg').textContent = '';
+            const btn = document.getElementById('scream-btn');
+            btn.textContent = '🎤 กดแล้วกรี๊ดได้เลย!';
+            btn.classList.remove('recording');
+            peakVolume = 0;
+        }
+
+        async function toggleScream() {
+            if (isRecording) {
+                stopScream();
+                showScreamResult();
+            } else {
+                await startScream();
+            }
+        }
+
+        async function startScream() {
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.75;
+                micSource = audioCtx.createMediaStreamSource(micStream);
+                micSource.connect(analyser);
+                isRecording = true;
+                peakVolume = 0;
+                const btn = document.getElementById('scream-btn');
+                btn.textContent = '⏹ หยุดกรี๊ด';
+                btn.classList.add('recording');
+                document.getElementById('scream-msg').textContent = 'กำลังฟัง... กรี๊ดได้เลย! 🎙️';
+                tickVolume();
+            } catch (e) {
+                document.getElementById('scream-msg').textContent = '⚠️ กรุณาอนุญาตการใช้ไมโครโฟนก่อนนะ';
+            }
+        }
+
+        function stopScream() {
+            isRecording = false;
+            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            if (micSource) { micSource.disconnect(); micSource = null; }
+            if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+            if (audioCtx) { audioCtx.close(); audioCtx = null; }
+            analyser = null;
+            const btn = document.getElementById('scream-btn');
+            if (btn) {
+                btn.textContent = '🎤 กรี๊ดอีกครั้ง!';
+                btn.classList.remove('recording');
+            }
+            const face = document.getElementById('scream-face');
+            if (face) face.classList.remove('shaking');
+        }
+
+        function tickVolume() {
+            if (!isRecording || !analyser) return;
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
+            const rms = Math.sqrt(sum / data.length);
+            const pct = Math.min(100, (rms / 100) * 100);
+            if (pct > peakVolume) peakVolume = pct;
+            document.getElementById('volume-fill').style.width = pct + '%';
+            document.getElementById('volume-pct').textContent = Math.round(pct) + '%';
+            const faceIdx = Math.min(5, Math.floor(pct / 17));
+            const face = document.getElementById('scream-face');
+            face.textContent = FACES[faceIdx];
+            if (pct > 30) {
+                face.classList.add('shaking');
+                face.style.transform = `scale(${1 + pct / 200})`;
+            } else {
+                face.classList.remove('shaking');
+                face.style.transform = 'scale(1)';
+            }
+            document.getElementById('scream-msg').textContent = MSGS_LIVE[faceIdx];
+            rafId = requestAnimationFrame(tickVolume);
+        }
+
+        function showScreamResult() {
+            const p = peakVolume;
+            let msg = '';
+            if (p < 5)       msg = '😴 ยังไม่ได้กรี๊ดเลยนะ... ลองใหม่อีกที!';
+            else if (p < 20) msg = '😐 เบามากเลย แอบกรี๊ดอยู่หรอ?';
+            else if (p < 40) msg = '😮 พอฟังได้ แต่ยังไม่สะใจ!';
+            else if (p < 60) msg = '😲 โอเคนะ! ปล่อยออกมาได้บ้างแล้ว!';
+            else if (p < 80) msg = '😱 เพื่อนบ้านตกใจแน่ๆ เลย!';
+            else             msg = '🤯💥 โห!! กรี๊ดแตกสุดๆ!! ระเบิดความเครียดสำเร็จ!!';
+            document.getElementById('scream-msg').textContent = msg;
+            document.getElementById('volume-fill').style.width = peakVolume + '%';
+            document.getElementById('volume-pct').textContent = `สูงสุด ${Math.round(peakVolume)}%`;
+            const faceIdx = Math.min(5, Math.floor(peakVolume / 17));
+            const face = document.getElementById('scream-face');
+            face.textContent = FACES[faceIdx];
+            face.style.transform = `scale(${1 + peakVolume / 200})`;
+        }
+    </script>
+</body>
+</html>
