@@ -688,6 +688,119 @@
             .pay-cancel-btn {
                 padding: 14px 0;
             }
+
+            /* ===== Mobile layout fixes ===== */
+            /* ดันคอนเทนต์ลงมาไม่ให้การ์ดชื่อผู้ใช้ทับหัวข้อ */
+            body {
+                align-items: flex-start;
+                padding: 92px 0 30px;
+            }
+
+            /* การ์ดชื่อผู้ใช้ — เต็มความกว้าง ชิดบน เล็กลง */
+            .user-header {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 9px 14px;
+            }
+
+            .user-name {
+                font-size: 0.85em;
+            }
+
+            .user-salary {
+                font-size: 0.85em;
+                margin-top: 3px;
+            }
+
+            .salary-amount {
+                font-size: 1em;
+            }
+
+            /* หัวข้อทุกหน้า — ย่อลงและไม่ตัดบรรทัด */
+            .page1 h1,
+            .page2 h1,
+            .page3 h1,
+            .page4 h1 {
+                white-space: nowrap;
+            }
+
+            .page1 h1 { font-size: 1.8em; }
+            .page2 h1 { font-size: 1.5em; }
+            .page3 h1 { font-size: 1.6em; margin-bottom: 20px; }
+            .page4 h1 { font-size: 1.6em; }
+
+            .emoji {
+                font-size: 1.2em;
+            }
+
+            .game-subtitle,
+            .scream-subtitle {
+                font-size: 0.95em;
+            }
+
+            /* หน้าผลลัพธ์ */
+            .job-count {
+                font-size: 0.95em;
+                white-space: nowrap;
+            }
+
+            .job-list {
+                max-height: 360px;
+            }
+
+            .spam-question {
+                font-size: 1.2em;
+            }
+
+            .spam-counter {
+                font-size: 2.8em;
+            }
+
+            .spam-btn {
+                font-size: 1.05em;
+                padding: 18px 12px;
+            }
+
+            /* หน้ากรี๊ด */
+            .scream-face {
+                font-size: 4em;
+            }
+
+            .scream-btn {
+                font-size: 1.1em;
+                padding: 16px 24px;
+            }
+
+            .volume-pct {
+                font-size: 1.2em;
+            }
+
+            /* หน้าสมัครเสร็จสิ้น */
+            .confetti-row {
+                font-size: 1.5em;
+                letter-spacing: 4px;
+            }
+
+            .success-badge {
+                font-size: 3.5em;
+            }
+
+            .success-title {
+                font-size: 1.1em;
+            }
+
+            .success-number {
+                font-size: 3.2em;
+            }
+
+            .success-unit {
+                font-size: 1.3em;
+            }
+
+            .success-sub {
+                font-size: 0.9em;
+            }
         }
         /* Page 4 - Scream */
         .page4 h1 {
@@ -973,8 +1086,7 @@
             <div class="scream-msg" id="scream-msg"></div>
 
             <div class="button-group">
-                <button class="restart-btn" onclick="restartFromScream()">🔄 ค้นหาใหม่อีกรอบ</button>
-                <button class="restart-btn" style="background:linear-gradient(135deg,#27ae60 0%,#1e8449 100%); margin-top:10px;" onclick="goToSuccess()">✅ ตกลง</button>
+                <button class="restart-btn" style="background:linear-gradient(135deg,#27ae60 0%,#1e8449 100%);" onclick="goToSuccess()">✅ ตกลง</button>
             </div>
         </div>
     </div>
